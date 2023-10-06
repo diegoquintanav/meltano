@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import shutil
+import typing as t
 from abc import abstractmethod, abstractproperty
 from base64 import b64decode, b64encode
 from collections.abc import Iterator
@@ -76,6 +77,15 @@ class BaseFilesystemStateStoreManager(StateStoreManager):  # noqa: WPS214
         """
         ...
 
+    @property
+    def extra_transport_params(self) -> dict[str, t.Any]:
+        """Extra transport params for ``smart_open.open``.
+
+        Returns:
+            The default transport params for filesystem-based backends.
+        """
+        return {}
+
     def uri_with_path(self, path: str) -> str:
         """Build uri with the given path included.
 
@@ -100,7 +110,10 @@ class BaseFilesystemStateStoreManager(StateStoreManager):  # noqa: WPS214
         if self.client:
             with open(
                 self.uri_with_path(path),
-                transport_params={"client": self.client},
+                transport_params={
+                    "client": self.client,
+                    **self.extra_transport_params,
+                },
             ) as reader:
                 yield reader
         else:
@@ -119,18 +132,20 @@ class BaseFilesystemStateStoreManager(StateStoreManager):  # noqa: WPS214
         Yields:
             A TextIOWrapper to read the file/blob.
         """
+        transport_params = {"client": self.client} if self.client else {}
+        transport_params.update(self.extra_transport_params)
         try:
             with open(
                 self.uri_with_path(path),
                 "w+",
-                transport_params={"client": self.client} if self.client else {},
+                transport_params=transport_params,
             ) as writer:
                 yield writer
         except NotImplementedError:
             with open(
                 self.uri_with_path(path),
                 "w",
-                transport_params={"client": self.client} if self.client else {},
+                transport_params=transport_params,
             ) as writer:
                 yield writer
 
