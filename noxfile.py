@@ -38,7 +38,7 @@ except ImportError:
 # `.pre-commit-config.yaml`.
 
 root_path = Path(__file__).parent
-python_versions = ("3.8", "3.9", "3.10", "3.11")
+python_versions = ("3.8", "3.9", "3.10", "3.11", "3.12")
 main_python_version = "3.10"
 pytest_deps = (
     "backoff",
@@ -48,7 +48,6 @@ pytest_deps = (
     "mock",
     "moto",
     "pytest",
-    "pytest-aiohttp",
     "pytest-asyncio",
     "pytest-cov",
     "pytest-docker",
@@ -98,6 +97,11 @@ def pytest_meltano(session: Session) -> None:
     Args:
         session: Nox session.
     """
+    install_env = {}
+    if session.python == "3.12":
+        # TODO: Remove this once aiohttp has 3.12 wheels
+        install_env["AIOHTTP_NO_EXTENSIONS"] = "1"
+
     backend_db = os.environ.get("PYTEST_BACKEND", "sqlite")
     extras = ["azure", "gcs", "s3"]
 
@@ -108,7 +112,11 @@ def pytest_meltano(session: Session) -> None:
     elif backend_db == "postgresql_psycopg3":
         extras.append("postgres")
 
-    session.install(f".[{','.join(extras)}]", *pytest_deps)
+    session.install(
+        f".[{','.join(extras)}]",
+        *pytest_deps,
+        env=install_env,
+    )
     _run_pytest(session)
 
 
@@ -155,6 +163,11 @@ def mypy(session: Session) -> None:
     Args:
         session: Nox session.
     """
+    install_env = {}
+    if session.python == "3.12":
+        # TODO: Remove this once aiohttp has 3.12 wheels
+        install_env["AIOHTTP_NO_EXTENSIONS"] = "1"
+
     session.install(
         ".[mssql,azure,gcs,s3]",
         "boto3-stubs",
@@ -167,5 +180,6 @@ def mypy(session: Session) -> None:
         "types-PyYAML",
         "types-requests",
         "types-tabulate",
+        env=install_env,
     )
     session.run("mypy", *session.posargs)
