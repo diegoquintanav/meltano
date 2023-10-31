@@ -74,6 +74,8 @@ def test_state_store_manager_from_project_settings(project: Project, state_path:
     az_state_store: AZStorageStateStoreManager = (
         state_store_manager_from_project_settings(project.settings)
     )
+    import distutils  # noqa: F401
+
     # Should create client using default creds
     assert isinstance(az_state_store.client, BlobServiceClient)
 
