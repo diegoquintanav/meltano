@@ -117,7 +117,7 @@ def pytest_meltano(session: Session) -> None:
         *pytest_deps,
         env=install_env,
     )
-    session.run("python", "-m", "pip", "freeze")
+    session.run("python", "-m", "pip", "list")
     _run_pytest(session)
 
 
