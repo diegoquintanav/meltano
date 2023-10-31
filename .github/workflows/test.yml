@@ -11,15 +11,15 @@ on:
       - .github/workflows/test.yml
       - .github/workflows/resources/constraints.txt
   push:
-    branches: [main]
-    paths:
-      - src/**
-      - tests/**
-      - noxfile.py
-      - poetry.lock
-      - pyproject.toml
-      - .github/workflows/test.yml
-      - .github/workflows/resources/constraints.txt
+    # branches: [main]
+    # paths:
+    #   - src/**
+    #   - tests/**
+    #   - noxfile.py
+    #   - poetry.lock
+    #   - pyproject.toml
+    #   - .github/workflows/test.yml
+    #   - .github/workflows/resources/constraints.txt
   workflow_dispatch:
     inputs: {}
 
