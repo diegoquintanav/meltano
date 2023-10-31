@@ -118,13 +118,13 @@ def pytest_meltano(session: Session) -> None:
         env=install_env,
     )
     session.run("python", "-m", "pip", "list")
+    _run_pytest(session)
     session.run("python", "-c", "import distutils; print(distutils.__file__)")
     session.run(
         "python",
         "-c",
         'from importlib import metadata; print(metadata.distribution("setuptools").locate_file("."))',  # noqa: E501
     )
-    _run_pytest(session)
 
 
 @nox_session(python=main_python_version)
